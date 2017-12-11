@@ -13,7 +13,6 @@ install:
   - go version
   - go env
   - go get -u github.com/gen2brain/beeep
-  - go get -t ./...
 
 build_script:
-  - go test -v ./
+  - go get -t ./...

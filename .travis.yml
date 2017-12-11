@@ -5,3 +5,6 @@ go:
 
 install:
   - go get -t ./...
+
+script:
+  - go build ./...
