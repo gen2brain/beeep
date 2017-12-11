@@ -13,7 +13,7 @@ var (
 	DefaultDuration = 500
 )
 
-// Beep beeps the pc speaker (https://en.wikipedia.org/wiki/PC_speaker).
+// Beep beeps the PC speaker (https://en.wikipedia.org/wiki/PC_speaker).
 func Beep(freq float64, duration int) error {
 	if freq == 0 {
 		freq = DefaultFreq

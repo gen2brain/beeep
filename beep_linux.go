@@ -49,8 +49,16 @@ func ioctl(fd, name, data uintptr) error {
 	return nil
 }
 
-// Beep beeps the pc speaker (https://en.wikipedia.org/wiki/PC_speaker).
-// On Linux it needs permission to access /dev/tty0 or /dev/input/by-path/platform-pcspkr-event-spkr, and pcspkr module must be loaded.
+// Beep beeps the PC speaker (https://en.wikipedia.org/wiki/PC_speaker).
+//
+// On Linux it needs permission to access `/dev/tty0` or `/dev/input/by-path/platform-pcspkr-event-spkr`, and `pcspkr` module must be loaded.
+// User must be in correct groups, usually `input` and/or `tty`.
+// If it can not open device files, it will fallback to sending Bell character (https://en.wikipedia.org/wiki/Bell_character).
+// For bell character in X11 terminals you can enable bell with `xset b on`. For console check `setterm` and `--blength` or `--bfreq` options.
+//
+// On macOS this just sends bell character. Enable `Audible bell` in Terminal --> Preferences --> Settings --> Advanced.
+//
+// On Windows it uses Beep function via syscall.
 func Beep(freq float64, duration int) error {
 	if freq == 0 {
 		freq = DefaultFreq

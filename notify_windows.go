@@ -18,7 +18,6 @@ var (
 )
 
 // Notify sends desktop notification.
-// FIXME On Windows this opens a modal dialog box that blocks and waits for action.
 func Notify(title, message string) error {
 	messageBox.Call(0,
 		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(title))),

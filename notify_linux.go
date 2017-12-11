@@ -10,6 +10,12 @@ import (
 )
 
 // Notify sends desktop notification.
+//
+// On Linux it tries to send notification via D-Bus and it will fallback to `notify-send` binary.
+//
+// FIXME On Windows this opens a modal dialog box that blocks and waits for action.
+//
+// On macOS this executes AppleScript with `osascript` binary.
 func Notify(title, message string) error {
 	cmd := func() error {
 		send, err := exec.LookPath("sw-notify-send")
