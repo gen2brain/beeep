@@ -87,6 +87,8 @@ func Beep(freq float64, duration int) error {
 		evdev = true
 	}
 
+	defer f.Close()
+
 	if evdev { // Use Linux evdev API
 		ev := inputEvent{}
 		ev.Type = evSnd
@@ -121,5 +123,5 @@ func Beep(freq float64, duration int) error {
 		}
 	}
 
-	return f.Close()
+	return nil
 }
