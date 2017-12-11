@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	// Default frequency, Hz, middle A
+	// DefaultFreq - frequency, in Hz, middle A
 	DefaultFreq = 0.0
-	// Default duration in milliseconds
+	// DefaultDuration - duration in milliseconds
 	DefaultDuration = 0
 )
 

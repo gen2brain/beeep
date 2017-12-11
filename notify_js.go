@@ -31,7 +31,7 @@ func Notify(title, message string) (err error) {
 	} else {
 		n.Call("requestPermission", func(permission string) {
 			if permission == "granted" {
-				notify := n.New(title, map[string]interface{}{
+				n.New(title, map[string]interface{}{
 					"body": message,
 				})
 			}

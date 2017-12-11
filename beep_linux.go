@@ -25,9 +25,9 @@ const (
 )
 
 var (
-	// Default frequency, in Hz, middle A
+	// DefaultFreq - frequency, in Hz, middle A
 	DefaultFreq = 440.0
-	// Default duration in milliseconds
+	// DefaultDuration - duration in milliseconds
 	DefaultDuration = 200
 )
 
@@ -79,10 +79,11 @@ func Beep(freq float64, duration int) error {
 			_, err = os.Stdout.Write([]byte{7})
 			if err != nil {
 				return errors.New(e.Error() + "; " + err.Error())
-			} else {
-				return nil
 			}
+
+			return nil
 		}
+
 		evdev = true
 	}
 
