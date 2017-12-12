@@ -60,6 +60,8 @@ func ioctl(fd, name, data uintptr) error {
 // On macOS this just sends bell character. Enable `Audible bell` in Terminal --> Preferences --> Settings --> Advanced.
 //
 // On Windows it uses Beep function via syscall.
+//
+// On Web it plays hard coded beep sound.
 func Beep(freq float64, duration int) error {
 	if freq == 0 {
 		freq = DefaultFreq
