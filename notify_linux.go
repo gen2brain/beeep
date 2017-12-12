@@ -13,7 +13,7 @@ import (
 //
 // On Linux it tries to send notification via D-Bus and it will fallback to `notify-send` binary.
 //
-// FIXME: On Windows this opens a modal dialog box that blocks and waits for action.
+// FIXME: On Windows this just executes `msg` command, available since Vista.
 //
 // On macOS this executes AppleScript with `osascript` binary.
 //
