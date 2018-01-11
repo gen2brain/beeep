@@ -5,6 +5,7 @@ package beeep
 import (
 	"bytes"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -12,9 +13,9 @@ import (
 )
 
 // Notify sends desktop notification.
-func Notify(title, message string) error {
+func Notify(title, message, appIcon string) error {
 	if isWindows10() {
-		return toastNotify(title, message)
+		return toastNotify(title, message, appIcon)
 	}
 	return msgNotify(title, message)
 }
@@ -28,13 +29,20 @@ func msgNotify(title, message string) error {
 	return cmd.Start()
 }
 
-func toastNotify(title, message string) error {
+func toastNotify(title, message, appIcon string) error {
+	var err error
 	iconPath := ""
+	if appIcon != "" {
+		iconPath, err = filepath.Abs(appIcon)
+		if err != nil {
+			return err
+		}
+	}
 	notification := toastNotification(title, message, iconPath)
 	return notification.Push()
 }
 
-func toastNotification(title, message, iconPath string) toast.Notification {
+func toastNotification(title, message, appIcon string) toast.Notification {
 	// NOTE: a real appID is required since Windows 10 Fall Creator's Update,
 	// issue https://github.com/go-toast/toast/issues/9
 	appID := "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe"
@@ -42,7 +50,7 @@ func toastNotification(title, message, iconPath string) toast.Notification {
 		AppID:   appID,
 		Title:   title,
 		Message: message,
-		Icon:    iconPath,
+		Icon:    appIcon,
 	}
 }
 

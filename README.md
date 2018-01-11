@@ -5,7 +5,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/gen2brain/beeep?branch=master)](https://goreportcard.com/report/github.com/gen2brain/beeep) 
 <!--[![Go Cover](http://gocover.io/_badge/github.com/gen2brain/beeep)](http://gocover.io/github.com/gen2brain/beeep)-->
 
-`beeep` provides a cross-platform library for sending desktop notifications and beeps.
+`beeep` provides a cross-platform library for sending desktop notifications, alerts and beeps.
 
 ### Installation
 
@@ -21,8 +21,21 @@ if err != nil {
 ```
 
 ```go
-err := beeep.Notify("Title", "Message body")
+err := beeep.Notify("Title", "Message body", "assets/icon128.png")
 if err != nil {
     panic(err)
 }
 ```
+
+```go
+err := beeep.Alert("Title", "Message body", "assets/icon128.png")
+if err != nil {
+    panic(err)
+}
+```
+
+
+## macOS
+
+For icons to show up when using Alert() or Notify(), you will need to bundle your application
+with a app icon.

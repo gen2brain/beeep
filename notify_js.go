@@ -7,7 +7,10 @@ import (
 )
 
 // Notify sends desktop notification.
-func Notify(title, message string) (err error) {
+//
+// On Web, in Firefox it just works, in Chrome you must call it from some "user gesture" like `onclick`,
+// and you must use TLS certificate, it doesn't work with plain http.
+func Notify(title, message, appIcon string) (err error) {
 	defer func() {
 		e := recover()
 
