@@ -12,14 +12,7 @@ import (
 // Notify sends desktop notification.
 //
 // On Linux it tries to send notification via D-Bus and it will fallback to `notify-send` binary.
-//
-// FIXME: On Windows this just executes `msg` command, available since Vista.
-//
-// On macOS this executes AppleScript with `osascript` binary.
-//
-// On Web, in Firefox it just works, in Chrome you must call it from some "user gesture" like `onclick`,
-// and you must use TLS certificate, it doesn't work with plain http.
-func Notify(title, message string) error {
+func Notify(title, message, appIcon string) error {
 	cmd := func() error {
 		send, err := exec.LookPath("sw-notify-send")
 		if err != nil {

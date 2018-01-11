@@ -7,7 +7,9 @@ import (
 )
 
 // Notify sends desktop notification.
-func Notify(title, message string) error {
+//
+// On macOS this executes AppleScript with `osascript` binary.
+func Notify(title, message, appIcon string) error {
 	osa, err := exec.LookPath("osascript")
 	if err != nil {
 		return err

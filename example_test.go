@@ -5,5 +5,5 @@ func ExampleBeep() {
 }
 
 func ExampleNotify() {
-	Notify("Title", "MessageBody")
+	Notify("Title", "MessageBody", "assets/icon128.png")
 }
