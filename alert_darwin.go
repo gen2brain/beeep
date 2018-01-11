@@ -1,3 +1,5 @@
+// +build darwin,!linux,!windows,!js
+
 package beeep
 
 import "os/exec"

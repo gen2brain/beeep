@@ -1,4 +1,4 @@
-// +build linux,!windows,!darwin,!js
+// +build js
 
 package beeep
 

@@ -1,3 +1,5 @@
+// +build windows,!linux,!darwin,!js
+
 package beeep
 
 import (
