@@ -7,3 +7,7 @@ func ExampleBeep() {
 func ExampleNotify() {
 	Notify("Title", "MessageBody", "assets/icon128.png")
 }
+
+func ExampleNotify() {
+	Alert("Title", "MessageBody", "assets/icon128.png")
+}
