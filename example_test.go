@@ -8,6 +8,6 @@ func ExampleNotify() {
 	Notify("Title", "MessageBody", "assets/icon128.png")
 }
 
-func ExampleNotify() {
+func ExampleAlert() {
 	Alert("Title", "MessageBody", "assets/icon128.png")
 }
