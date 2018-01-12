@@ -76,7 +76,7 @@ func getWindowsVersionString() string {
 	if err != nil {
 		panic(err)
 	}
-	s := strings.Replace(out.String(), "\r\n", "", -1)
+	s := strings.ToLower(strings.Replace(out.String(), "\r\n", "", -1))
 	p1 := strings.Index(s, "[Version")
 	p2 := strings.Index(s, "]")
 	var ver string
