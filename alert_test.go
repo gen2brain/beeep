@@ -5,7 +5,7 @@ import (
 )
 
 func TestAlert(t *testing.T) {
-	err := Alert("Alert title", "Message body", "assets/icon128.png")
+	err := Alert("Alert title", "Message body", "assets/warning.png")
 	if err != nil {
 		t.Error(err)
 	}

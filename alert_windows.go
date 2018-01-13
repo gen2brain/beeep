@@ -8,7 +8,7 @@ import (
 	toast "gopkg.in/toast.v1"
 )
 
-// Alert displays a desktop notification and plays a default system sound
+// Alert displays a desktop notification and plays a default system sound.
 func Alert(title, message, appIcon string) error {
 	var err error
 	iconPath := ""

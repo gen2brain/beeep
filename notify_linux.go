@@ -22,7 +22,7 @@ func Notify(title, message, appIcon string) error {
 			}
 		}
 
-		c := exec.Command(send, title, message)
+		c := exec.Command(send, title, message, "-i", appIcon)
 		return c.Start()
 	}
 
@@ -35,7 +35,7 @@ func Notify(title, message, appIcon string) error {
 
 	obj := conn.Object("org.freedesktop.Notifications", dbus.ObjectPath("/org/freedesktop/Notifications"))
 
-	call := obj.Call("org.freedesktop.Notifications", 0, "", uint32(0), "", title, message, []string{}, map[string]dbus.Variant{}, int32(-1))
+	call := obj.Call("org.freedesktop.Notifications", 0, "", uint32(0), appIcon, title, message, []string{}, map[string]dbus.Variant{}, int32(-1))
 	if call.Err != nil {
 		e := cmd()
 		if e != nil {

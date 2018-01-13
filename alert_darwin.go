@@ -4,7 +4,7 @@ package beeep
 
 import "os/exec"
 
-// Alert displays a desktop notification and plays a default system sound
+// Alert displays a desktop notification and plays a default system sound.
 func Alert(title, message, appIcon string) error {
 	osa, err := exec.LookPath("osascript")
 	if err != nil {

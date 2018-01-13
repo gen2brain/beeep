@@ -30,12 +30,14 @@ func Notify(title, message, appIcon string) (err error) {
 	if n.Get("permission").String() == "granted" {
 		n.New(title, map[string]interface{}{
 			"body": message,
+			"icon": appIcon,
 		})
 	} else {
 		n.Call("requestPermission", func(permission string) {
 			if permission == "granted" {
 				n.New(title, map[string]interface{}{
 					"body": message,
+					"icon": appIcon,
 				})
 			}
 		})
