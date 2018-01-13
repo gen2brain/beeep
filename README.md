@@ -21,14 +21,14 @@ if err != nil {
 ```
 
 ```go
-err := beeep.Notify("Title", "Message body", "assets/icon128.png")
+err := beeep.Notify("Title", "Message body", "assets/information.png")
 if err != nil {
     panic(err)
 }
 ```
 
 ```go
-err := beeep.Alert("Title", "Message body", "assets/icon128.png")
+err := beeep.Alert("Title", "Message body", "assets/warning.png")
 if err != nil {
     panic(err)
 }
