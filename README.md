@@ -39,3 +39,7 @@ if err != nil {
 
 For icons to show up when using Alert() or Notify(), you will need to bundle your application
 with a app icon.
+
+## More
+
+For cross-platform dialogs and input boxes see [dlgs](https://github.com/gen2brain/dlgs).
