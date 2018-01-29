@@ -9,13 +9,13 @@ import (
 	"strconv"
 	"strings"
 
-	toast "gopkg.in/toast.v1"
+	"gopkg.in/toast.v1"
 )
 
 // Notify sends desktop notification.
-func Notify(title, message, appIcon string) error {
+func Notify(appid, title, message, appIcon string) error {
 	if isWindows10() {
-		return toastNotify(title, message, appIcon)
+		return toastNotify(appid, title, message, appIcon)
 	}
 	return msgNotify(title, message)
 }
@@ -29,7 +29,7 @@ func msgNotify(title, message string) error {
 	return cmd.Start()
 }
 
-func toastNotify(title, message, appIcon string) error {
+func toastNotify(appid, title, message, appIcon string) error {
 	var err error
 	iconPath := ""
 	if appIcon != "" {
@@ -38,14 +38,14 @@ func toastNotify(title, message, appIcon string) error {
 			return err
 		}
 	}
-	notification := toastNotification(title, message, iconPath)
+	notification := toastNotification(appid, title, message, iconPath)
 	return notification.Push()
 }
 
-func toastNotification(title, message, appIcon string) toast.Notification {
+func toastNotification(appID, title, message, appIcon string) toast.Notification {
 	// NOTE: a real appID is required since Windows 10 Fall Creator's Update,
 	// issue https://github.com/go-toast/toast/issues/9
-	appID := "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe"
+	//appID := "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe"
 	return toast.Notification{
 		AppID:   appID,
 		Title:   title,
