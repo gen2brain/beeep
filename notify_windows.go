@@ -3,18 +3,33 @@
 package beeep
 
 import (
-	"bytes"
 	"os/exec"
 	"path/filepath"
-	"strconv"
-	"strings"
 
+	"golang.org/x/sys/windows/registry"
 	toast "gopkg.in/toast.v1"
 )
 
+var isWindows10 = false
+
+func init() {
+	k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SOFTWARE\Microsoft\Windows NT\CurrentVersion`, registry.QUERY_VALUE)
+	if err != nil {
+		return
+	}
+	defer k.Close()
+
+	maj, _, err := k.GetIntegerValue("CurrentMajorVersionNumber")
+	if err != nil {
+		return
+	}
+
+	isWindows10 = maj == 10
+}
+
 // Notify sends desktop notification.
 func Notify(title, message, appIcon string) error {
-	if isWindows10() {
+	if isWindows10 {
 		return toastNotify(title, message, appIcon)
 	}
 	return msgNotify(title, message)
@@ -52,38 +67,4 @@ func toastNotification(title, message, appIcon string) toast.Notification {
 		Message: message,
 		Icon:    appIcon,
 	}
-}
-
-func isWindows10() bool {
-	ver := getWindowsVersionString()
-	parts := strings.Split(ver, ".")
-	if len(parts) < 1 {
-		return false
-	}
-	i, err := strconv.Atoi(parts[0])
-	if err != nil {
-		return false
-	}
-	return i == 10
-}
-
-// Returns the Windows version string, such as "10.0.16299.125" on Windows 10
-func getWindowsVersionString() string {
-	cmd := exec.Command("cmd", "ver")
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		panic(err)
-	}
-	s := strings.ToLower(strings.Replace(out.String(), "\r\n", "", -1))
-	p1 := strings.Index(s, "[version")
-	p2 := strings.Index(s, "]")
-	var ver string
-	if p1 == -1 || p2 == -1 {
-		ver = "unknown"
-	} else {
-		ver = s[p1+9 : p2]
-	}
-	return ver
 }
