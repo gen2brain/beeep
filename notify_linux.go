@@ -26,6 +26,15 @@ func Notify(title, message, appIcon string) error {
 		return c.Start()
 	}
 
+	knotify := func() error {
+		send, err := exec.LookPath("kdialog")
+		if err != nil {
+			return err
+		}
+		c := exec.Command(send, "--title", title, "--passivepopup", message, "10", "--icon", appIcon)
+		return c.Start()
+	}
+
 	conn, err := dbus.SessionBus()
 	if err != nil {
 		return cmd()
@@ -39,7 +48,10 @@ func Notify(title, message, appIcon string) error {
 	if call.Err != nil {
 		e := cmd()
 		if e != nil {
-			return errors.New("beeep: " + call.Err.Error() + "; " + e.Error())
+			e := knotify()
+			if e != nil {
+				return errors.New("beeep: " + call.Err.Error() + "; " + e.Error())
+			}
 		}
 	}
 
