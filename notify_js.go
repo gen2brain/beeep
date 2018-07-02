@@ -3,7 +3,7 @@
 package beeep
 
 import (
-	"github.com/gopherjs/gopherjs/js"
+	"github.com/gopherjs/gopherwasm/js"
 )
 
 // Notify sends desktop notification.
@@ -25,22 +25,24 @@ func Notify(title, message, appIcon string) (err error) {
 		}
 	}()
 
-	n := js.Global.Get("window").Get("Notification")
+	n := js.Global().Get("Notification")
+
+	opts := js.Global().Get("Object").Invoke()
+	opts.Set("body", message)
+	opts.Set("icon", appIcon)
 
 	if n.Get("permission").String() == "granted" {
-		n.New(title, map[string]interface{}{
-			"body": message,
-			"icon": appIcon,
-		})
+		n.New(js.ValueOf(title), opts)
 	} else {
-		n.Call("requestPermission", func(permission string) {
-			if permission == "granted" {
-				n.New(title, map[string]interface{}{
-					"body": message,
-					"icon": appIcon,
-				})
+		var f js.Callback
+		f = js.NewCallback(func(args []js.Value) {
+			if args[0].String() == "granted" {
+				n.New(js.ValueOf(title), opts)
 			}
+			f.Release()
 		})
+
+		n.Call("requestPermission", f)
 	}
 
 	return
