@@ -1,4 +1,4 @@
-// +build windows,!linux,!darwin,!js
+// +build windows,!linux,!freebsd,!netbsd,!openbsd,!darwin,!js
 
 package beeep
 
