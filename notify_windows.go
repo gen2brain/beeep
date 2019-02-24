@@ -3,9 +3,12 @@
 package beeep
 
 import (
+	"errors"
 	"os/exec"
 	"path/filepath"
+	"time"
 
+	"github.com/tadvi/systray"
 	"golang.org/x/sys/windows/registry"
 	toast "gopkg.in/toast.v1"
 )
@@ -30,9 +33,31 @@ func init() {
 // Notify sends desktop notification.
 func Notify(title, message, appIcon string) error {
 	if isWindows10 {
+		k, err := registry.OpenKey(registry.CURRENT_USER, `SOFTWARE\Classes\ActivatableClasses\Package`, registry.QUERY_VALUE)
+		if err != nil {
+			return err
+		}
+		defer k.Close()
+		appId, _, err := k.GetStringValue("AppUserModelID")
+		if err != nil {
+			return err
+		}
+
+		println(appId)
+
 		return toastNotify(title, message, appIcon)
 	}
-	return msgNotify(title, message)
+
+	err := baloonNotify(title, message, appIcon)
+	if err != nil {
+		e := msgNotify(title, message)
+		if e != nil {
+			return errors.New("beeep: " + err.Error() + "; " + e.Error())
+		}
+	}
+
+	return nil
+
 }
 
 func msgNotify(title, message string) error {
@@ -42,6 +67,26 @@ func msgNotify(title, message string) error {
 	}
 	cmd := exec.Command(msg, "*", "/TIME:3", title+"\n\n"+message)
 	return cmd.Start()
+}
+
+func baloonNotify(title, message, appIcon string) error {
+	tray, err := systray.New()
+	if err != nil {
+		return err
+	}
+
+	err = tray.ShowCustom(appIcon, title)
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		tray.Run()
+		time.Sleep(3 * time.Second)
+		tray.Stop()
+	}()
+
+	return tray.ShowMessage(title, message)
 }
 
 func toastNotify(title, message, appIcon string) error {
