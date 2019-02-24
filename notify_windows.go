@@ -71,15 +71,7 @@ func baloonNotify(title, message, appIcon string) error {
 		return err
 	}
 
-	iconPath := ""
-	if appIcon != "" {
-		iconPath, err = filepath.Abs(appIcon)
-		if err != nil {
-			return err
-		}
-	}
-
-	err = tray.ShowCustom(iconPath, title)
+	err = tray.ShowCustom(pathAbs(appIcon), title)
 	if err != nil {
 		return err
 	}
@@ -94,15 +86,7 @@ func baloonNotify(title, message, appIcon string) error {
 }
 
 func toastNotify(title, message, appIcon string) error {
-	var err error
-	iconPath := ""
-	if appIcon != "" {
-		iconPath, err = filepath.Abs(appIcon)
-		if err != nil {
-			return err
-		}
-	}
-	notification := toastNotification(title, message, iconPath)
+	notification := toastNotification(title, message, pathAbs(appIcon))
 	return notification.Push()
 }
 

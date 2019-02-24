@@ -29,7 +29,7 @@ func Notify(title, message, appIcon string) (err error) {
 
 	opts := js.Global().Get("Object").Invoke()
 	opts.Set("body", message)
-	opts.Set("icon", appIcon)
+	opts.Set("icon", pathAbs(appIcon))
 
 	if n.Get("permission").String() == "granted" {
 		n.New(js.ValueOf(title), opts)

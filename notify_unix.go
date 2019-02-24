@@ -13,6 +13,8 @@ import (
 //
 // On Linux it tries to send notification via D-Bus and it will fallback to `notify-send` binary.
 func Notify(title, message, appIcon string) error {
+	appIcon = pathAbs(appIcon)
+
 	cmd := func() error {
 		send, err := exec.LookPath("sw-notify-send")
 		if err != nil {

@@ -10,15 +10,7 @@ import (
 
 // Alert displays a desktop notification and plays a default system sound.
 func Alert(title, message, appIcon string) error {
-	var err error
-	iconPath := ""
-	if appIcon != "" {
-		iconPath, err = filepath.Abs(appIcon)
-		if err != nil {
-			return err
-		}
-	}
-	note := toastNotification(title, message, iconPath)
+	note := toastNotification(title, message, pathAbs(appIcon))
 	note.Audio = toast.Default
 	return note.Push()
 }
