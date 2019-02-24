@@ -3,9 +3,12 @@
 package beeep
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/tadvi/systray"
@@ -13,7 +16,8 @@ import (
 	toast "gopkg.in/toast.v1"
 )
 
-var isWindows10 = false
+var isWindows10 bool
+var applicationID string
 
 func init() {
 	k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SOFTWARE\Microsoft\Windows NT\CurrentVersion`, registry.QUERY_VALUE)
@@ -28,23 +32,15 @@ func init() {
 	}
 
 	isWindows10 = maj == 10
+
+	if isWindows10 {
+		applicationID = appID()
+	}
 }
 
 // Notify sends desktop notification.
 func Notify(title, message, appIcon string) error {
 	if isWindows10 {
-		k, err := registry.OpenKey(registry.CURRENT_USER, `SOFTWARE\Classes\ActivatableClasses\Package`, registry.QUERY_VALUE)
-		if err != nil {
-			return err
-		}
-		defer k.Close()
-		appId, _, err := k.GetStringValue("AppUserModelID")
-		if err != nil {
-			return err
-		}
-
-		println(appId)
-
 		return toastNotify(title, message, appIcon)
 	}
 
@@ -75,7 +71,15 @@ func baloonNotify(title, message, appIcon string) error {
 		return err
 	}
 
-	err = tray.ShowCustom(appIcon, title)
+	iconPath := ""
+	if appIcon != "" {
+		iconPath, err = filepath.Abs(appIcon)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = tray.ShowCustom(iconPath, title)
 	if err != nil {
 		return err
 	}
@@ -103,13 +107,31 @@ func toastNotify(title, message, appIcon string) error {
 }
 
 func toastNotification(title, message, appIcon string) toast.Notification {
-	// NOTE: a real appID is required since Windows 10 Fall Creator's Update,
-	// issue https://github.com/go-toast/toast/issues/9
-	appID := "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe"
 	return toast.Notification{
-		AppID:   appID,
+		AppID:   applicationID,
 		Title:   title,
 		Message: message,
 		Icon:    appIcon,
 	}
+}
+
+func appID() string {
+	defID := "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe"
+	out, err := exec.Command("powershell", "Get-StartApps").Output()
+	if err != nil {
+		return defID
+	}
+
+	scanner := bufio.NewScanner(bytes.NewReader(out))
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if strings.Contains(line, "powershell.exe") {
+			sp := strings.Split(line, " ")
+			if len(sp) > 0 {
+				return sp[len(sp)-1]
+			}
+		}
+	}
+
+	return defID
 }
