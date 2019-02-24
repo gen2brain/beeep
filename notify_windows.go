@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"errors"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"time"
 

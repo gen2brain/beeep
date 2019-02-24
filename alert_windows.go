@@ -3,8 +3,6 @@
 package beeep
 
 import (
-	"path/filepath"
-
 	toast "gopkg.in/toast.v1"
 )
 
