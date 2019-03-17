@@ -13,6 +13,7 @@ import (
 	"github.com/tadvi/systray"
 	"golang.org/x/sys/windows/registry"
 	toast "gopkg.in/toast.v1"
+	"syscall"
 )
 
 var isWindows10 bool
@@ -61,6 +62,7 @@ func msgNotify(title, message string) error {
 		return err
 	}
 	cmd := exec.Command(msg, "*", "/TIME:3", title+"\n\n"+message)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow:true}
 	return cmd.Start()
 }
 
@@ -100,7 +102,9 @@ func toastNotification(title, message, appIcon string) toast.Notification {
 
 func appID() string {
 	defID := "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe"
-	out, err := exec.Command("powershell", "Get-StartApps").Output()
+	cmd := exec.Command("powershell", "Get-StartApps")
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow:true}
+	out, err := cmd.Output()
 	if err != nil {
 		return defID
 	}
