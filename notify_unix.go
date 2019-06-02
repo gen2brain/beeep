@@ -41,9 +41,6 @@ func Notify(title, message, appIcon string) error {
 	if err != nil {
 		return cmd()
 	}
-
-	defer conn.Close()
-
 	obj := conn.Object("org.freedesktop.Notifications", dbus.ObjectPath("/org/freedesktop/Notifications"))
 
 	call := obj.Call("org.freedesktop.Notifications.Notify", 0, "", uint32(0), appIcon, title, message, []string{}, map[string]dbus.Variant{}, int32(-1))
