@@ -16,5 +16,5 @@ func Notify(title, message, appIcon string) error {
 	}
 
 	cmd := exec.Command(osa, "-e", `display notification "`+message+`" with title "`+title+`"`)
-	return cmd.Start()
+	return cmd.Run()
 }

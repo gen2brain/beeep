@@ -8,8 +8,8 @@ import (
 	"errors"
 	"os/exec"
 	"strings"
-	"time"
 	"syscall"
+	"time"
 
 	"github.com/tadvi/systray"
 	"golang.org/x/sys/windows/registry"
@@ -62,8 +62,8 @@ func msgNotify(title, message string) error {
 		return err
 	}
 	cmd := exec.Command(msg, "*", "/TIME:3", title+"\n\n"+message)
-	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow:true}
-	return cmd.Start()
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	return cmd.Run()
 }
 
 func baloonNotify(title, message, appIcon string, bigIcon bool) error {
@@ -103,7 +103,7 @@ func toastNotification(title, message, appIcon string) toast.Notification {
 func appID() string {
 	defID := "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe"
 	cmd := exec.Command("powershell", "Get-StartApps")
-	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow:true}
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	out, err := cmd.Output()
 	if err != nil {
 		return defID

@@ -12,5 +12,5 @@ func Alert(title, message, appIcon string) error {
 	}
 
 	cmd := exec.Command(osa, "-e", `tell application "System Events" to display notification "`+message+`" with title "`+title+`" sound name "default"`)
-	return cmd.Start()
+	return cmd.Run()
 }
