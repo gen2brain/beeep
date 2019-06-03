@@ -25,7 +25,7 @@ func Notify(title, message, appIcon string) error {
 		}
 
 		c := exec.Command(send, title, message, "-i", appIcon)
-		return c.Start()
+		return c.Run()
 	}
 
 	knotify := func() error {
@@ -34,7 +34,7 @@ func Notify(title, message, appIcon string) error {
 			return err
 		}
 		c := exec.Command(send, "--title", title, "--passivepopup", message, "10", "--icon", appIcon)
-		return c.Start()
+		return c.Run()
 	}
 
 	conn, err := dbus.SessionBus()
