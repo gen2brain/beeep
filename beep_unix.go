@@ -41,7 +41,7 @@ type inputEvent struct {
 
 // ioctl system call manipulates the underlying device parameters of special files.
 func ioctl(fd, name, data uintptr) error {
-	_, _, e := syscall.Syscall(syscall.SYS_IOCTL, fd, uintptr(name), uintptr(data))
+	_, _, e := syscall.Syscall(syscall.SYS_IOCTL, fd, name, data)
 	if e != 0 {
 		return e
 	}
