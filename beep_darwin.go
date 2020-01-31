@@ -23,6 +23,6 @@ func Beep(freq float64, duration int) error {
 		return err
 	}
 
-	cmd := exec.Command(osa, "-e", `tell application "System Events" to beep`)
+	cmd := exec.Command(osa, "-e", `beep`)
 	return cmd.Run()
 }
