@@ -11,9 +11,9 @@ import (
 	"syscall"
 	"time"
 
+	toast "github.com/go-toast/toast"
 	"github.com/tadvi/systray"
 	"golang.org/x/sys/windows/registry"
-	toast "gopkg.in/toast.v1"
 )
 
 var isWindows10 bool
