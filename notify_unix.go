@@ -1,5 +1,5 @@
-//go:build linux || freebsd || netbsd || openbsd
-// +build linux freebsd netbsd openbsd
+//go:build (linux && !nodbus) || (freebsd && !nodbus) || (netbsd && !nodbus) || (openbsd && !nodbus)
+// +build linux,!nodbus freebsd,!nodbus netbsd,!nodbus openbsd,!nodbus
 
 package beeep
 
