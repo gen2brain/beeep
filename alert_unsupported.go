@@ -1,3 +1,4 @@
+//go:build !linux && !freebsd && !netbsd && !openbsd && !windows && !darwin && !js
 // +build !linux,!freebsd,!netbsd,!openbsd,!windows,!darwin,!js
 
 package beeep
