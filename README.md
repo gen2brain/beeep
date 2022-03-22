@@ -11,6 +11,10 @@
 
     go get -u github.com/gen2brain/beeep
 
+### Build tags
+
+* `nodbus` - disable `godbus/dbus` and use only `notify-send`
+
 ### Examples
 
 ```go
