@@ -4,7 +4,7 @@
 package beeep
 
 import (
-	"github.com/gopherjs/gopherwasm/js"
+	"syscall/js"
 )
 
 var (

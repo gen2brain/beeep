@@ -4,7 +4,7 @@
 package beeep
 
 import (
-	"github.com/gopherjs/gopherwasm/js"
+	"syscall/js"
 )
 
 // Notify sends desktop notification.
@@ -35,12 +35,13 @@ func Notify(title, message, appIcon string) (err error) {
 	if n.Get("permission").String() == "granted" {
 		n.New(js.ValueOf(title), opts)
 	} else {
-		var f js.Callback
-		f = js.NewCallback(func(args []js.Value) {
+		var f js.Func
+		f = js.FuncOf(func(this js.Value, args []js.Value) any {
 			if args[0].String() == "granted" {
 				n.New(js.ValueOf(title), opts)
 			}
 			f.Release()
+			return nil
 		})
 
 		n.Call("requestPermission", f)
