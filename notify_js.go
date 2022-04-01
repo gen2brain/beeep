@@ -36,7 +36,7 @@ func Notify(title, message, appIcon string) (err error) {
 		n.New(js.ValueOf(title), opts)
 	} else {
 		var f js.Func
-		f = js.FuncOf(func(this js.Value, args []js.Value) any {
+		f = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 			if args[0].String() == "granted" {
 				n.New(js.ValueOf(title), opts)
 			}
