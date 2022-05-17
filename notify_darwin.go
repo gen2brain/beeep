@@ -4,6 +4,7 @@
 package beeep
 
 import (
+	"fmt"
 	"os/exec"
 )
 
@@ -16,6 +17,7 @@ func Notify(title, message, appIcon string) error {
 		return err
 	}
 
-	cmd := exec.Command(osa, "-e", `display notification "`+message+`" with title "`+title+`"`)
+	script := fmt.Sprintf("display notification %q with title %q", message, title)
+	cmd := exec.Command(osa, "-e", script)
 	return cmd.Run()
 }
