@@ -3,7 +3,10 @@
 
 package beeep
 
-import "os/exec"
+import (
+	"fmt"
+	"os/exec"
+)
 
 // Alert displays a desktop notification and plays a default system sound.
 func Alert(title, message, appIcon string) error {
@@ -12,6 +15,7 @@ func Alert(title, message, appIcon string) error {
 		return err
 	}
 
-	cmd := exec.Command(osa, "-e", `tell application "System Events" to display notification "`+message+`" with title "`+title+`" sound name "default"`)
+	script := fmt.Sprintf("tell application \"System Events\" to display notification %q with title %q sound name \"default\"", message, title)
+	cmd := exec.Command(osa, "-e", script)
 	return cmd.Run()
 }
