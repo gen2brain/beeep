@@ -1,5 +1,5 @@
-//go:build linux || freebsd || netbsd || openbsd
-// +build linux freebsd netbsd openbsd
+//go:build linux || freebsd || netbsd || openbsd || illumos
+// +build linux freebsd netbsd openbsd illumos
 
 package beeep
 
