@@ -79,9 +79,11 @@ func baloonNotify(title, message, appIcon string, bigIcon bool) error {
 	}
 
 	go func() {
-		tray.Run()
+		go func() {
+			_ = tray.Run()
+		}()
 		time.Sleep(3 * time.Second)
-		tray.Stop()
+		_ = tray.Stop()
 	}()
 
 	return tray.ShowMessage(title, message, bigIcon)
