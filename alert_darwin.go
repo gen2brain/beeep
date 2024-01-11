@@ -15,7 +15,7 @@ func Alert(title, message, appIcon string) error {
 		return err
 	}
 
-	script := fmt.Sprintf("tell application \"System Events\" to display notification %q with title %q sound name \"default\"", message, title)
+	script := fmt.Sprintf(`display notification "%s" with title "%s" sound name "default"`, message, title)
 	cmd := exec.Command(osa, "-e", script)
 	return cmd.Run()
 }
