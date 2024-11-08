@@ -5,6 +5,7 @@ import (
 	"errors"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 var (
@@ -16,7 +17,7 @@ func pathAbs(path string) string {
 	var err error
 	var abs string
 
-	if path != "" {
+	if path != "" && strings.ContainsAny(path, "/\\.") {
 		abs, err = filepath.Abs(path)
 		if err != nil {
 			abs = path
