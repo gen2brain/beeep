@@ -10,11 +10,23 @@ import (
 	"github.com/godbus/dbus/v5"
 )
 
+func isAppIconRelative(appIcon string) bool {
+	for _, char := range appIcon {
+		if char == '\\' || char == '.' || char == '/' {
+			println(char)
+			return true
+		}
+	}
+	return false
+}
+
 // Notify sends desktop notification.
 //
 // On Linux it tries to send notification via D-Bus and it will fallback to `notify-send` binary.
 func Notify(title, message, appIcon string) error {
-	appIcon = pathAbs(appIcon)
+	if isAppIconRelative(appIcon) {
+		appIcon = pathAbs(appIcon)
+	}
 
 	cmd := func() error {
 		send, err := exec.LookPath("sw-notify-send")
