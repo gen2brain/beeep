@@ -13,7 +13,6 @@ import (
 func isAppIconRelative(appIcon string) bool {
 	for _, char := range appIcon {
 		if char == '\\' || char == '.' || char == '/' {
-			println(char)
 			return true
 		}
 	}
