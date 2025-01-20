@@ -5,16 +5,28 @@ package beeep
 
 import (
 	"errors"
+	"strconv"
+	"time"
+
 	"os/exec"
 
 	"github.com/godbus/dbus/v5"
 )
 
-// Notify sends desktop notification.
+// Notify sends desktop notification with default timeout
 //
 // On Linux it tries to send notification via D-Bus and it will fallback to `notify-send` binary.
 func Notify(title, message, appIcon string) error {
+	return NotifyEx(title, message, appIcon, -1)
+}
+
+// NotifyEx sends notification with timeout
+func NotifyEx(title, message, appIcon string, timeout time.Duration) error {
 	appIcon = pathAbs(appIcon)
+	if timeout > 0 {
+		timeout = timeout / time.Millisecond
+	}
+	timeOut := strconv.Itoa(int(timeout))
 
 	cmd := func() error {
 		send, err := exec.LookPath("sw-notify-send")
@@ -25,7 +37,7 @@ func Notify(title, message, appIcon string) error {
 			}
 		}
 
-		c := exec.Command(send, title, message, "-i", appIcon)
+		c := exec.Command(send, title, message, "-i", appIcon, "-t", timeOut)
 		return c.Run()
 	}
 
@@ -34,7 +46,8 @@ func Notify(title, message, appIcon string) error {
 		if err != nil {
 			return err
 		}
-		c := exec.Command(send, "--title", title, "--passivepopup", message, "10", "--icon", appIcon)
+		c := exec.Command(send, "--title", title, "--passivepopup",
+			message, strconv.Itoa(int(timeout/1e3)), "--icon", appIcon)
 		return c.Run()
 	}
 
@@ -44,7 +57,8 @@ func Notify(title, message, appIcon string) error {
 	}
 	obj := conn.Object("org.freedesktop.Notifications", dbus.ObjectPath("/org/freedesktop/Notifications"))
 
-	call := obj.Call("org.freedesktop.Notifications.Notify", 0, "", uint32(0), appIcon, title, message, []string{}, map[string]dbus.Variant{}, int32(-1))
+	call := obj.Call("org.freedesktop.Notifications.Notify",
+		0, "", uint32(0), appIcon, title, message, []string{}, map[string]dbus.Variant{}, int32(timeout))
 	if call.Err != nil {
 		e := cmd()
 		if e != nil {

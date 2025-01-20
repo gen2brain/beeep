@@ -7,6 +7,7 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
+	"fmt"
 	"os/exec"
 	"strings"
 	"syscall"
@@ -39,15 +40,20 @@ func init() {
 	}
 }
 
-// Notify sends desktop notification.
+// Notify sends desktop notification with default timeout
 func Notify(title, message, appIcon string) error {
+	return NotifyEx(title, message, appIcon, 3*time.Second)
+}
+
+// NotifyEx sends desktop notification with timeout
+func NotifyEx(title, message, appIcon string, timeout time.Duration) error {
 	if isWindows10 {
 		return toastNotify(title, message, appIcon)
 	}
 
 	err := baloonNotify(title, message, appIcon, false)
 	if err != nil {
-		e := msgNotify(title, message)
+		e := msgNotify(title, message, timeout)
 		if e != nil {
 			return errors.New("beeep: " + err.Error() + "; " + e.Error())
 		}
@@ -57,12 +63,16 @@ func Notify(title, message, appIcon string) error {
 
 }
 
-func msgNotify(title, message string) error {
+func msgNotify(title, message string, timeout time.Duration) error {
 	msg, err := exec.LookPath("msg")
 	if err != nil {
 		return err
 	}
-	cmd := exec.Command(msg, "*", "/TIME:3", title+"\n\n"+message)
+	if timeout <= 0 {
+		timeout = time.Second * 3
+	}
+
+	cmd := exec.Command(msg, "*", fmt.Sprintf("/TIME:%d", timeout/time.Second), title+"\n\n"+message)
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	return cmd.Run()
 }
