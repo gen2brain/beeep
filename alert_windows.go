@@ -10,15 +10,13 @@ func Alert(title, message, icon string) error {
 		if err := toastNotify(title, message, icon, true); err != nil {
 			return err
 		}
+
+		time.Sleep(time.Millisecond * 10)
 	} else {
-		if err := balloonNotify(title, message, icon); err != nil {
+		if err := balloonNotify(title, message, icon, true); err != nil {
 			return err
 		}
-
-		return messageBeep(true)
 	}
-
-	time.Sleep(time.Millisecond * 10)
 
 	return nil
 }

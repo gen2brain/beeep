@@ -1,4 +1,4 @@
-//go:build windows && !linux && !freebsd && !netbsd && !openbsd && !darwin && !js
+//go:build windows && go1.21 && !linux && !freebsd && !netbsd && !openbsd && !darwin && !js
 
 package beeep
 
@@ -33,18 +33,18 @@ func Notify(title, message, icon string) error {
 		if err := toastNotify(title, message, icon, false); err != nil {
 			return err
 		}
+
+		time.Sleep(time.Millisecond * 10)
 	} else {
-		if err := balloonNotify(title, message, icon); err != nil {
+		if err := balloonNotify(title, message, icon, false); err != nil {
 			return err
 		}
 	}
 
-	time.Sleep(time.Millisecond * 10)
-
 	return nil
 }
 
-func balloonNotify(title, message, icon string) error {
+func balloonNotify(title, message, icon string, urgent bool) error {
 	tray, err := systray.New()
 	if err != nil {
 		return err
@@ -63,7 +63,19 @@ func balloonNotify(title, message, icon string) error {
 		_ = tray.Stop()
 	}()
 
-	return tray.ShowMessage(title, message, false)
+	err = tray.ShowMessage(title, message, false)
+	if err != nil {
+		return err
+	}
+
+	if urgent {
+		err = messageBeep(true)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func toastNotify(title, message, icon string, urgent bool) error {
