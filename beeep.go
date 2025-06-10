@@ -2,15 +2,21 @@
 package beeep
 
 import (
-	"errors"
+	"fmt"
 	"path/filepath"
 	"runtime"
+	"time"
 )
 
 var (
-	// ErrUnsupported is returned when operating system is not supported.
-	ErrUnsupported = errors.New("beeep: unsupported operating system: " + runtime.GOOS)
+	// ErrUnsupported is returned when an operating system is not supported.
+	ErrUnsupported = fmt.Errorf("beeep: unsupported operating system: %s", runtime.GOOS)
 )
+
+// AppID .
+var AppID string
+
+var timeout = time.Second * 5
 
 func pathAbs(path string) string {
 	var err error
