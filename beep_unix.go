@@ -35,7 +35,7 @@ type inputEvent struct {
 // Beep beeps the PC speaker (https://en.wikipedia.org/wiki/PC_speaker).
 //
 // On Linux it needs permission to access `/dev/input/by-path/platform-pcspkr-event-spkr` file for writing,
-// and `pcspkr` module must be loaded. User must be in correct groups, usually `input`.
+// and `pcspkr` module must be loaded. User must be in the correct group, usually `input`.
 //
 // If it cannot open device files, it will fall back to sending Bell character (https://en.wikipedia.org/wiki/Bell_character).
 // For bell character in X11 terminals you can enable a bell with `xset b on`. For console check `setterm` and `--blength` or `--bfreq` options.
