@@ -1,7 +1,6 @@
 ## beeep
 [![Build Status](https://github.com/gen2brain/beeep/actions/workflows/build.yml/badge.svg)](https://github.com/gen2brain/beeep/actions)
 [![Go Reference](https://pkg.go.dev/badge/github.com/gen2brain/beeep.svg)](https://pkg.go.dev/github.com/gen2brain/beeep)
-[![Go Report Card](https://goreportcard.com/badge/github.com/gen2brain/beeep?branch=master)](https://goreportcard.com/report/github.com/gen2brain/beeep) 
 
 `beeep` provides a cross-platform library for sending desktop notifications, alerts and beeps.
 
