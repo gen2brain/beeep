@@ -1,5 +1,4 @@
 //go:build darwin && !linux && !freebsd && !netbsd && !openbsd && !windows && !js
-// +build darwin,!linux,!freebsd,!netbsd,!openbsd,!windows,!js
 
 package beeep
 
@@ -9,7 +8,7 @@ import (
 )
 
 // Alert displays a desktop notification and plays a default system sound.
-func Alert(title, message, appIcon string) error {
+func Alert(title, message, icon string) error {
 	osa, err := exec.LookPath("osascript")
 	if err != nil {
 		return err
@@ -17,5 +16,6 @@ func Alert(title, message, appIcon string) error {
 
 	script := fmt.Sprintf("display notification %q with title %q sound name \"default\"", message, title)
 	cmd := exec.Command(osa, "-e", script)
+
 	return cmd.Run()
 }

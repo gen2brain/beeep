@@ -1,5 +1,4 @@
 //go:build darwin && !linux && !freebsd && !netbsd && !openbsd && !windows && !js
-// +build darwin,!linux,!freebsd,!netbsd,!openbsd,!windows,!js
 
 package beeep
 
@@ -25,5 +24,6 @@ func Beep(freq float64, duration int) error {
 	}
 
 	cmd := exec.Command(osa, "-e", `beep`)
+
 	return cmd.Run()
 }

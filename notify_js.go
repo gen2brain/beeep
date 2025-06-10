@@ -1,5 +1,4 @@
 //go:build js
-// +build js
 
 package beeep
 
@@ -9,9 +8,9 @@ import (
 
 // Notify sends desktop notification.
 //
-// On Web, in Firefox it just works, in Chrome you must call it from some "user gesture" like `onclick`,
+// On the Web, in Firefox it just works, in Chrome you must call it from some "user gesture" like `onclick`,
 // and you must use TLS certificate, it doesn't work with plain http.
-func Notify(title, message, appIcon string) (err error) {
+func Notify(title, message, icon string) (err error) {
 	defer func() {
 		e := recover()
 
@@ -30,7 +29,7 @@ func Notify(title, message, appIcon string) (err error) {
 
 	opts := js.Global().Get("Object").Invoke()
 	opts.Set("body", message)
-	opts.Set("icon", pathAbs(appIcon))
+	opts.Set("icon", pathAbs(icon))
 
 	if n.Get("permission").String() == "granted" {
 		n.New(js.ValueOf(title), opts)

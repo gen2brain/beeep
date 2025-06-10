@@ -3,8 +3,8 @@
 package beeep
 
 // Alert displays a desktop notification and plays a beep.
-func Alert(title, message, appIcon string) error {
-	if err := notify1(title, message, appIcon, true); err != nil {
+func Alert(title, message, icon string) error {
+	if err := notify1(title, message, icon, true); err != nil {
 		return err
 	}
 
