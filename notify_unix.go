@@ -1,56 +1,106 @@
-//go:build (linux && !nodbus) || (freebsd && !nodbus) || (netbsd && !nodbus) || (openbsd && !nodbus)
-// +build linux,!nodbus freebsd,!nodbus netbsd,!nodbus openbsd,!nodbus
+//go:build (linux || freebsd || netbsd || openbsd || illumos) && !nodbus
 
 package beeep
 
 import (
-	"errors"
+	"fmt"
+	"io"
+	"log"
+	"os"
 	"os/exec"
+	"strconv"
 
+	"github.com/esiqveland/notify"
 	"github.com/godbus/dbus/v5"
 )
 
 // Notify sends desktop notification.
 //
-// On Linux it tries to send notification via D-Bus and it will fallback to `notify-send` binary.
-func Notify(title, message, appIcon string) error {
-	appIcon = pathAbs(appIcon)
+// On Linux it tries to send notification via D-Bus, and it will fall back to `notify-send` binary.
+func Notify(title, message, icon string) error {
+	return notify1(title, message, icon, false)
+}
 
-	cmd := func() error {
-		send, err := exec.LookPath("sw-notify-send")
-		if err != nil {
-			send, err = exec.LookPath("notify-send")
-			if err != nil {
-				return err
-			}
-		}
-
-		c := exec.Command(send, title, message, "-i", appIcon)
-		return c.Run()
+func notify1(title, message, icon string, urgent bool) error {
+	if _, err := os.Stat(icon); err == nil {
+		icon = pathAbs(icon)
 	}
 
-	knotify := func() error {
-		send, err := exec.LookPath("kdialog")
+	cmd1 := func() error {
+		cmd, err := exec.LookPath("notify-send")
 		if err != nil {
 			return err
 		}
-		c := exec.Command(send, "--title", title, "--passivepopup", message, "10", "--icon", appIcon)
+
+		args := []string{title, message, "-a", AppID, "-i", icon, "-t", strconv.Itoa(int(timeout.Milliseconds())), "-u"}
+		if urgent {
+			args = append(args, "critical")
+		} else {
+			args = append(args, "normal")
+		}
+		c := exec.Command(cmd, args...)
+
 		return c.Run()
 	}
 
-	conn, err := dbus.SessionBus()
-	if err != nil {
-		return cmd()
-	}
-	obj := conn.Object("org.freedesktop.Notifications", dbus.ObjectPath("/org/freedesktop/Notifications"))
+	cmd2 := func() error {
+		cmd, err := exec.LookPath("kdialog")
+		if err != nil {
+			return err
+		}
 
-	call := obj.Call("org.freedesktop.Notifications.Notify", 0, "", uint32(0), appIcon, title, message, []string{}, map[string]dbus.Variant{}, int32(-1))
-	if call.Err != nil {
-		e := cmd()
-		if e != nil {
-			e := knotify()
-			if e != nil {
-				return errors.New("beeep: " + call.Err.Error() + "; " + e.Error())
+		args := []string{"--title", title, "--passivepopup", message, strconv.Itoa(int(timeout.Seconds())), "--icon", icon}
+		c := exec.Command(cmd, args...)
+
+		return c.Run()
+	}
+
+	dbus1 := func() error {
+		conn, err := dbus.SessionBus()
+		if err != nil {
+			return err
+		}
+		defer conn.Close()
+
+		n := notify.Notification{
+			AppName:       AppID,
+			AppIcon:       icon,
+			Summary:       title,
+			Body:          message,
+			ExpireTimeout: timeout,
+		}
+
+		if urgent {
+			soundHint := notify.HintSoundWithName("bell")
+			n.Hints = map[string]dbus.Variant{
+				soundHint.ID: soundHint.Variant,
+			}
+			n.SetUrgency(notify.UrgencyCritical)
+		} else {
+			n.SetUrgency(notify.UrgencyNormal)
+		}
+
+		notifier, err := notify.New(conn, notify.WithLogger(log.New(io.Discard, "", log.Flags())))
+		if err != nil {
+			return err
+		}
+		defer notifier.Close()
+
+		_, err = notifier.SendNotification(n)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	err := dbus1()
+	if err != nil {
+		err1 := cmd1()
+		if err1 != nil {
+			err2 := cmd2()
+			if err2 != nil {
+				return fmt.Errorf("beeep: dbus: %w; notify-send: %w; kdialog: %w", err, err1, err2)
 			}
 		}
 	}

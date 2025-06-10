@@ -1,44 +1,60 @@
-//go:build (linux && nodbus) || (freebsd && nodbus) || (netbsd && nodbus) || (openbsd && nodbus) || illumos
-// +build linux,nodbus freebsd,nodbus netbsd,nodbus openbsd,nodbus illumos
+//go:build (linux || freebsd || netbsd || openbsd || illumos) && nodbus
 
 package beeep
 
 import (
-	"errors"
+	"fmt"
+	"os"
 	"os/exec"
+	"strconv"
 )
 
 // Notify sends desktop notification.
-func Notify(title, message, appIcon string) error {
-	appIcon = pathAbs(appIcon)
+//
+// On Linux it tries to send notification via D-Bus, and it will fall back to `notify-send` binary.
+func Notify(title, message, icon string) error {
+	return notify1(title, message, icon, false)
+}
 
-	cmd := func() error {
-		send, err := exec.LookPath("sw-notify-send")
-		if err != nil {
-			send, err = exec.LookPath("notify-send")
-			if err != nil {
-				return err
-			}
-		}
-
-		c := exec.Command(send, title, message, "-i", appIcon)
-		return c.Run()
+func notify1(title, message, icon string, urgent bool) error {
+	if _, err := os.Stat(icon); err == nil {
+		icon = pathAbs(icon)
 	}
 
-	knotify := func() error {
-		send, err := exec.LookPath("kdialog")
+	cmd1 := func() error {
+		cmd, err := exec.LookPath("notify-send")
 		if err != nil {
 			return err
 		}
-		c := exec.Command(send, "--title", title, "--passivepopup", message, "10", "--icon", appIcon)
+
+		args := []string{title, message, "-a", AppID, "-i", icon, "-t", strconv.Itoa(int(timeout.Milliseconds())), "-u"}
+		if urgent {
+			args = append(args, "critical")
+		} else {
+			args = append(args, "normal")
+		}
+		c := exec.Command(cmd, args...)
+
 		return c.Run()
 	}
 
-	err := cmd()
-	if err != nil {
-		e := knotify()
-		if e != nil {
-			return errors.New("beeep: " + err.Error() + "; " + e.Error())
+	cmd2 := func() error {
+		cmd, err := exec.LookPath("kdialog")
+		if err != nil {
+			return err
+		}
+
+		args := []string{"--title", title, "--passivepopup", message, strconv.Itoa(int(timeout.Seconds())), "--icon", icon}
+		c := exec.Command(cmd, args...)
+
+		return c.Run()
+	}
+
+	err1 := cmd1()
+	if err1 != nil {
+		err2 := cmd2()
+		if err2 != nil {
+			return fmt.Errorf("beeep: notify-send: %w; kdialog: %w", err1, err2)
 		}
 	}
 
