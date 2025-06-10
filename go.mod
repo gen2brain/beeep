@@ -1,8 +1,9 @@
 module github.com/gen2brain/beeep
 
-go 1.14
+go 1.21
 
 require (
+	github.com/esiqveland/notify v0.13.3
 	github.com/go-toast/toast v0.0.0-20190211030409-01e6764cf0a4
 	github.com/godbus/dbus/v5 v5.1.0
 	github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af
