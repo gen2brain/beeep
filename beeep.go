@@ -13,8 +13,9 @@ var (
 	ErrUnsupported = fmt.Errorf("beeep: unsupported operating system: %s", runtime.GOOS)
 )
 
-// AppID .
-var AppID string
+// AppName is the name of app.
+// This should be the application's formal name, rather than some sort of ID.
+var AppName = "DefaultAppName"
 
 var timeout = time.Second * 5
 

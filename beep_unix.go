@@ -12,16 +12,16 @@ import (
 
 // Constants
 const (
-	// linux/input-event-codes.h
-	evSnd   = 0x12 // Event type
-	sndTone = 0x02 // Sound
-)
-
-var (
 	// DefaultFreq - frequency, in Hz, middle A
 	DefaultFreq = 440.0
 	// DefaultDuration - duration in milliseconds
 	DefaultDuration = 200
+)
+
+const (
+	// linux/input-event-codes.h
+	evSnd   = 0x12 // Event type
+	sndTone = 0x02 // Sound
 )
 
 // inputEvent represents linux/input.h event structure.

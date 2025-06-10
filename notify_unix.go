@@ -32,7 +32,7 @@ func notify1(title, message, icon string, urgent bool) error {
 			return err
 		}
 
-		args := []string{title, message, "-a", AppID, "-i", icon, "-t", strconv.Itoa(int(timeout.Milliseconds())), "-u"}
+		args := []string{title, message, "-a", AppName, "-i", icon, "-t", strconv.Itoa(int(timeout.Milliseconds())), "-u"}
 		if urgent {
 			args = append(args, "critical")
 		} else {
@@ -63,7 +63,7 @@ func notify1(title, message, icon string, urgent bool) error {
 		defer conn.Close()
 
 		n := notify.Notification{
-			AppName:       AppID,
+			AppName:       AppName,
 			AppIcon:       icon,
 			Summary:       title,
 			Body:          message,
