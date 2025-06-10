@@ -6,7 +6,7 @@ import (
 	"syscall"
 )
 
-var (
+const (
 	// DefaultFreq - frequency, in Hz, middle A
 	DefaultFreq = 587.0
 	// DefaultDuration - duration in milliseconds
@@ -32,7 +32,26 @@ func Beep(freq float64, duration int) error {
 
 	defer syscall.FreeLibrary(kernel32)
 
-	_, _, e := syscall.SyscallN(beep32, uintptr(2), uintptr(int(freq)), uintptr(duration), 0)
+	_, _, e := syscall.SyscallN(beep32, uintptr(int(freq)), uintptr(duration))
+	if e != 0 {
+		return e
+	}
+
+	return nil
+}
+
+func messageBeep(urgent bool) error {
+	user32, _ := syscall.LoadLibrary("user32.dll")
+	beep32, _ := syscall.GetProcAddress(user32, "MessageBeep")
+
+	defer syscall.FreeLibrary(user32)
+
+	var uType uint32 = 0x00000000
+	if urgent {
+		uType = 0x00000010
+	}
+
+	_, _, e := syscall.SyscallN(beep32, uintptr(uType))
 	if e != 0 {
 		return e
 	}

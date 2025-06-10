@@ -1,24 +1,16 @@
 //go:build windows && !linux && !freebsd && !netbsd && !openbsd && !darwin && !js
-// +build windows,!linux,!freebsd,!netbsd,!openbsd,!darwin,!js
 
 package beeep
 
 import (
-	"bufio"
-	"bytes"
-	"errors"
-	"os/exec"
-	"strings"
-	"syscall"
 	"time"
 
-	toast "github.com/go-toast/toast"
+	"git.sr.ht/~jackmordaunt/go-toast"
 	"github.com/tadvi/systray"
 	"golang.org/x/sys/windows/registry"
 )
 
 var isWindows10 bool
-var applicationID string
 
 func init() {
 	k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SOFTWARE\Microsoft\Windows NT\CurrentVersion`, registry.QUERY_VALUE)
@@ -33,47 +25,32 @@ func init() {
 	}
 
 	isWindows10 = maj == 10
-
-	if isWindows10 {
-		applicationID = appID()
-	}
 }
 
 // Notify sends desktop notification.
-func Notify(title, message, appIcon string) error {
+func Notify(title, message, icon string) error {
 	if isWindows10 {
-		return toastNotify(title, message, appIcon)
-	}
-
-	err := baloonNotify(title, message, appIcon, false)
-	if err != nil {
-		e := msgNotify(title, message)
-		if e != nil {
-			return errors.New("beeep: " + err.Error() + "; " + e.Error())
+		if err := toastNotify(title, message, icon, false); err != nil {
+			return err
+		}
+	} else {
+		if err := balloonNotify(title, message, icon); err != nil {
+			return err
 		}
 	}
 
+	time.Sleep(time.Millisecond * 10)
+
 	return nil
-
 }
 
-func msgNotify(title, message string) error {
-	msg, err := exec.LookPath("msg")
-	if err != nil {
-		return err
-	}
-	cmd := exec.Command(msg, "*", "/TIME:3", title+"\n\n"+message)
-	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	return cmd.Run()
-}
-
-func baloonNotify(title, message, appIcon string, bigIcon bool) error {
+func balloonNotify(title, message, icon string) error {
 	tray, err := systray.New()
 	if err != nil {
 		return err
 	}
 
-	err = tray.ShowCustom(pathAbs(appIcon), title)
+	err = tray.ShowCustom(pathAbs(icon), title)
 	if err != nil {
 		return err
 	}
@@ -82,46 +59,31 @@ func baloonNotify(title, message, appIcon string, bigIcon bool) error {
 		go func() {
 			_ = tray.Run()
 		}()
-		time.Sleep(3 * time.Second)
+		time.Sleep(timeout)
 		_ = tray.Stop()
 	}()
 
-	return tray.ShowMessage(title, message, bigIcon)
+	return tray.ShowMessage(title, message, false)
 }
 
-func toastNotify(title, message, appIcon string) error {
-	notification := toastNotification(title, message, pathAbs(appIcon))
-	return notification.Push()
-}
-
-func toastNotification(title, message, appIcon string) toast.Notification {
-	return toast.Notification{
-		AppID:   applicationID,
-		Title:   title,
-		Message: message,
-		Icon:    appIcon,
-	}
-}
-
-func appID() string {
-	defID := "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe"
-	cmd := exec.Command("powershell", "-NoProfile", "Get-StartApps")
-	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	out, err := cmd.Output()
-	if err != nil {
-		return defID
+func toastNotify(title, message, icon string, urgent bool) error {
+	n := toast.Notification{
+		AppID: AppName,
+		Title: title,
+		Body:  message,
+		Icon:  pathAbs(icon),
 	}
 
-	scanner := bufio.NewScanner(bytes.NewReader(out))
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if strings.Contains(line, "powershell.exe") {
-			sp := strings.Split(line, " ")
-			if len(sp) > 0 {
-				return sp[len(sp)-1]
-			}
-		}
+	n.Duration = toast.Short
+	if timeout.Seconds() > 10 {
+		n.Duration = toast.Long
 	}
 
-	return defID
+	if urgent {
+		n.Audio = toast.Default
+	} else {
+		n.Audio = toast.Silent
+	}
+
+	return n.Push()
 }

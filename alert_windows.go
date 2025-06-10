@@ -1,22 +1,24 @@
 //go:build windows && !linux && !freebsd && !netbsd && !openbsd && !darwin && !js
-// +build windows,!linux,!freebsd,!netbsd,!openbsd,!darwin,!js
 
 package beeep
 
-import (
-	toast "github.com/go-toast/toast"
-)
+import "time"
 
 // Alert displays a desktop notification and plays a default system sound.
-func Alert(title, message, appIcon string) error {
+func Alert(title, message, icon string) error {
 	if isWindows10 {
-		note := toastNotification(title, message, pathAbs(appIcon))
-		note.Audio = toast.Default
-		return note.Push()
+		if err := toastNotify(title, message, icon, true); err != nil {
+			return err
+		}
+	} else {
+		if err := balloonNotify(title, message, icon); err != nil {
+			return err
+		}
+
+		return messageBeep(true)
 	}
 
-	if err := Notify(title, message, appIcon); err != nil {
-		return err
-	}
-	return Beep(DefaultFreq, DefaultDuration)
+	time.Sleep(time.Millisecond * 10)
+
+	return nil
 }
