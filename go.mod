@@ -1,6 +1,6 @@
 module github.com/gen2brain/beeep
 
-go 1.20
+go 1.21
 
 require (
 	git.sr.ht/~jackmordaunt/go-toast v1.1.2
