@@ -3,8 +3,11 @@
 package beeep
 
 import (
+	"image/png"
+	"os"
 	"time"
 
+	"github.com/sergeymakinen/go-ico"
 	"github.com/tadvi/systray"
 )
 
@@ -12,20 +15,22 @@ var isWindows10 = false
 
 // Notify sends desktop notification.
 func Notify(title, message, icon string) error {
-	if err := balloonNotify(title, message, icon, false); err != nil {
-		return err
-	}
-
-	return nil
+	return balloonNotify(title, message, icon)
 }
 
-func balloonNotify(title, message, icon string, urgent bool) error {
+func balloonNotify(title, message, icon string) error {
 	tray, err := systray.New()
 	if err != nil {
 		return err
 	}
 
-	err = tray.ShowCustom(pathAbs(icon), title)
+	tmp, err := pngToIco(pathAbs(icon))
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tmp)
+
+	err = tray.ShowCustom(tmp, title)
 	if err != nil {
 		return err
 	}
@@ -38,16 +43,9 @@ func balloonNotify(title, message, icon string, urgent bool) error {
 		_ = tray.Stop()
 	}()
 
-	err = tray.ShowMessage(title, message, false)
+	err = tray.ShowMessage(title, message, true)
 	if err != nil {
 		return err
-	}
-
-	if urgent {
-		err = Beep(DefaultFreq, DefaultDuration)
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil
@@ -55,4 +53,34 @@ func balloonNotify(title, message, icon string, urgent bool) error {
 
 func toastNotify(title, message, icon string, urgent bool) error {
 	return nil
+}
+
+func pngToIco(icon string) (string, error) {
+	var out string
+
+	f, err := os.Open(icon)
+	if err != nil {
+		return out, err
+	}
+	defer f.Close()
+
+	img, err := png.Decode(f)
+	if err != nil {
+		return out, err
+	}
+
+	tmp, err := os.CreateTemp(os.TempDir(), "beeep")
+	if err != nil {
+		return out, err
+	}
+	defer tmp.Close()
+
+	out = tmp.Name()
+
+	err = ico.Encode(tmp, img)
+	if err != nil {
+		return out, err
+	}
+
+	return out, nil
 }

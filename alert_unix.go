@@ -8,5 +8,10 @@ func Alert(title, message, icon string) error {
 		return err
 	}
 
-	return Beep(DefaultFreq, DefaultDuration)
+	err := Beep(DefaultFreq, DefaultDuration)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

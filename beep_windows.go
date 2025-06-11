@@ -40,21 +40,11 @@ func Beep(freq float64, duration int) error {
 	return nil
 }
 
-func messageBeep(urgent bool) error {
+func messageBeep() {
 	user32, _ := syscall.LoadLibrary("user32.dll")
 	beep32, _ := syscall.GetProcAddress(user32, "MessageBeep")
 
 	defer syscall.FreeLibrary(user32)
 
-	var uType uint32 = 0x00000000
-	if urgent {
-		uType = 0x00000010
-	}
-
-	_, _, e := syscall.SyscallN(beep32, uintptr(uType))
-	if e != 0 {
-		return e
-	}
-
-	return nil
+	_, _, _ = syscall.SyscallN(beep32, uintptr(0x00000000))
 }
