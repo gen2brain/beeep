@@ -8,7 +8,7 @@ import (
 )
 
 // Alert displays a desktop notification and plays a default system sound.
-func Alert(title, message, icon string) error {
+func Alert(title, message string, icon any) error {
 	osa, err := exec.LookPath("osascript")
 	if err != nil {
 		return err

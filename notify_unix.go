@@ -3,7 +3,11 @@
 package beeep
 
 import (
+	"bytes"
 	"fmt"
+	"image"
+	"image/draw"
+	"image/png"
 	"io"
 	"log"
 	"os"
@@ -16,20 +20,45 @@ import (
 
 // Notify sends desktop notification.
 //
-// On Linux it tries to send notification via D-Bus, and it will fall back to `notify-send` binary.
-func Notify(title, message, icon string) error {
+// Icon can be string with a path to png file or []byte data. Stock icon names can also be used where supported.
+// On Linux it tries to send notification via D-Bus, and it will fall back to `notify-send` command.
+func Notify(title, message string, icon any) error {
 	return notify1(title, message, icon, false)
 }
 
-func notify1(title, message, icon string, urgent bool) error {
-	if _, err := os.Stat(icon); err == nil {
-		icon = pathAbs(icon)
+func notify1(title, message string, ico any, urgent bool) error {
+	var isString, isBytes bool
+	switch ico.(type) {
+	case string:
+		isString = true
+	case []byte:
+		isBytes = true
+	default:
+		return fmt.Errorf("unsupported argument: %T", ico)
+	}
+
+	var icon string
+	if isString {
+		icon = ico.(string)
+		if _, err := os.Stat(icon); err == nil {
+			icon = pathAbs(icon)
+		}
 	}
 
 	cmd1 := func() error {
 		cmd, err := exec.LookPath("notify-send")
 		if err != nil {
 			return err
+		}
+
+		if isBytes {
+			tmp, err := bytesToFilename(ico.([]byte))
+			if err != nil {
+				return err
+			}
+			defer os.Remove(tmp)
+
+			icon = tmp
 		}
 
 		args := []string{title, message, "-a", AppName, "-i", icon, "-t", strconv.Itoa(int(timeout.Milliseconds())), "-u"}
@@ -47,6 +76,16 @@ func notify1(title, message, icon string, urgent bool) error {
 		cmd, err := exec.LookPath("kdialog")
 		if err != nil {
 			return err
+		}
+
+		if isBytes {
+			tmp, err := bytesToFilename(ico.([]byte))
+			if err != nil {
+				return err
+			}
+			defer os.Remove(tmp)
+
+			icon = tmp
 		}
 
 		args := []string{"--title", title, "--passivepopup", message, strconv.Itoa(int(timeout.Seconds())), "--icon", icon}
@@ -70,14 +109,24 @@ func notify1(title, message, icon string, urgent bool) error {
 			ExpireTimeout: timeout,
 		}
 
+		n.Hints = map[string]dbus.Variant{}
+
 		if urgent {
 			soundHint := notify.HintSoundWithName("bell")
-			n.Hints = map[string]dbus.Variant{
-				soundHint.ID: soundHint.Variant,
-			}
+			n.Hints[soundHint.ID] = soundHint.Variant
 			n.SetUrgency(notify.UrgencyCritical)
 		} else {
 			n.SetUrgency(notify.UrgencyNormal)
+		}
+
+		if isBytes {
+			rgba, err := bytesToRGBA(ico.([]byte))
+			if err != nil {
+				return err
+			}
+
+			imageHint := notify.HintImageDataRGBA(rgba)
+			n.Hints[imageHint.ID] = imageHint.Variant
 		}
 
 		notifier, err := notify.New(conn, notify.WithLogger(log.New(io.Discard, "", log.Flags())))
@@ -106,4 +155,21 @@ func notify1(title, message, icon string, urgent bool) error {
 	}
 
 	return nil
+}
+
+func bytesToRGBA(data []byte) (*image.RGBA, error) {
+	i, err := png.Decode(bytes.NewReader(data))
+	if err != nil {
+		return nil, err
+	}
+
+	if img, ok := i.(*image.RGBA); ok {
+		return img, nil
+	}
+
+	b := i.Bounds()
+	img := image.NewRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
+	draw.Draw(img, img.Bounds(), i, b.Min, draw.Src)
+
+	return img, nil
 }

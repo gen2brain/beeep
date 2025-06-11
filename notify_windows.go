@@ -3,6 +3,7 @@
 package beeep
 
 import (
+	"fmt"
 	"image/png"
 	"os"
 	"time"
@@ -31,15 +32,30 @@ func init() {
 }
 
 // Notify sends desktop notification.
-func Notify(title, message, icon string) error {
+func Notify(title, message string, icon any) error {
+	var img string
+	switch i := icon.(type) {
+	case string:
+		img = i
+	case []byte:
+		var err error
+		img, err = bytesToFilename(i)
+		if err != nil {
+			return err
+		}
+		defer os.Remove(img)
+	default:
+		return fmt.Errorf("unsupported argument: %T", icon)
+	}
+
 	if isWindows10 {
-		if err := toastNotify(title, message, icon, false); err != nil {
+		if err := toastNotify(title, message, img, false); err != nil {
 			return err
 		}
 
-		time.Sleep(time.Millisecond * 10)
+		time.Sleep(time.Millisecond * 100)
 	} else {
-		if err := balloonNotify(title, message, icon); err != nil {
+		if err := balloonNotify(title, message, img); err != nil {
 			return err
 		}
 	}
@@ -121,7 +137,7 @@ func pngToIco(icon string) (string, error) {
 		return out, err
 	}
 
-	tmp, err := os.CreateTemp(os.TempDir(), "beeep")
+	tmp, err := os.CreateTemp(os.TempDir(), "beeep*.ico")
 	if err != nil {
 		return out, err
 	}

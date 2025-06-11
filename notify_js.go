@@ -3,6 +3,8 @@
 package beeep
 
 import (
+	"encoding/base64"
+	"fmt"
 	"syscall/js"
 )
 
@@ -10,7 +12,7 @@ import (
 //
 // On the Web, in Firefox it just works, in Chrome you must call it from some "user gesture" like `onclick`,
 // and you must use TLS certificate, it doesn't work with plain http.
-func Notify(title, message, icon string) (err error) {
+func Notify(title, message string, icon any) (err error) {
 	defer func() {
 		e := recover()
 
@@ -25,11 +27,21 @@ func Notify(title, message, icon string) (err error) {
 		}
 	}()
 
+	var img string
+	switch i := icon.(type) {
+	case string:
+		img = i
+	case []byte:
+		img = fmt.Sprintf("data:image/png;base64, %s", base64.StdEncoding.EncodeToString(i))
+	default:
+		return fmt.Errorf("unsupported argument: %T", icon)
+	}
+
 	n := js.Global().Get("Notification")
 
 	opts := js.Global().Get("Object").Invoke()
 	opts.Set("body", message)
-	opts.Set("icon", pathAbs(icon))
+	opts.Set("icon", img)
 
 	if n.Get("permission").String() == "granted" {
 		n.New(js.ValueOf(title), opts)

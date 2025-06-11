@@ -22,14 +22,19 @@ if err != nil {
 ```
 
 ```go
-err := beeep.Notify("Title", "Message body", "assets/information.png")
+//go:embed testdata/info.png
+var icon []byte
+
+err := beeep.Notify("Title", "Message body", icon)
 if err != nil {
-    panic(err)
+panic(err)
 }
 ```
 
 ```go
-err := beeep.Alert("Title", "Message body", "assets/warning.png")
+beeep.AppName = "My App Name"
+
+err := beeep.Alert("Title", "Message body", "testdata/warning.png")
 if err != nil {
     panic(err)
 }

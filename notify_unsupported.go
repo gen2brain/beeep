@@ -3,6 +3,6 @@
 package beeep
 
 // Notify sends desktop notification.
-func Notify(title, message, icon string) error {
+func Notify(title, message string, icon any) error {
 	return ErrUnsupported
 }

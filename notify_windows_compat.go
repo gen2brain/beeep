@@ -3,6 +3,7 @@
 package beeep
 
 import (
+	"fmt"
 	"image/png"
 	"os"
 	"time"
@@ -14,8 +15,27 @@ import (
 var isWindows10 = false
 
 // Notify sends desktop notification.
-func Notify(title, message, icon string) error {
-	return balloonNotify(title, message, icon)
+func Notify(title, message string, icon any) error {
+	var img string
+	switch i := icon.(type) {
+	case string:
+		img = i
+	case []byte:
+		var err error
+		img, err = bytesToFilename(i)
+		if err != nil {
+			return err
+		}
+		defer os.Remove(img)
+	default:
+		return fmt.Errorf("unsupported argument: %T", icon)
+	}
+
+	if err := balloonNotify(title, message, img); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func balloonNotify(title, message, icon string) error {

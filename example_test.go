@@ -1,13 +1,24 @@
-package beeep
+package beeep_test
 
-func ExampleBeep() {
-	Beep(DefaultFreq, DefaultDuration)
-}
+import (
+	_ "embed"
+
+	"github.com/gen2brain/beeep"
+)
+
+//go:embed testdata/info.png
+var icon []byte
 
 func ExampleNotify() {
-	Notify("Title", "MessageBody", "assets/information.png")
+	_ = beeep.Notify("Title", "MessageBody", icon) // icon is embedded file
 }
 
 func ExampleAlert() {
-	Alert("Title", "MessageBody", "assets/warning.png")
+	beeep.AppName = "My App Name" // change the default app name
+
+	_ = beeep.Alert("Title", "MessageBody", "testdata/warning.png")
+}
+
+func ExampleBeep() {
+	_ = beeep.Beep(beeep.DefaultFreq, beeep.DefaultDuration)
 }
