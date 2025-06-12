@@ -10,6 +10,7 @@ import (
 )
 
 // Notify sends desktop notification.
+// The icon can be string with a path to png file or png []byte data. Stock icon names can also be used where supported.
 //
 // On Linux it tries to send notification via D-Bus, and it will fall back to `notify-send` binary.
 func Notify(title, message string, icon any) error {

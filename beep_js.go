@@ -14,6 +14,8 @@ var (
 )
 
 // Beep beeps the PC speaker (https://en.wikipedia.org/wiki/PC_speaker).
+//
+// On the Web it plays hard-coded beep sound.
 func Beep(freq float64, duration int) (err error) {
 	defer func() {
 		e := recover()

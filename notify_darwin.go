@@ -12,6 +12,7 @@ import (
 )
 
 // Notify sends desktop notification.
+// The icon can be string with a path to png file or png []byte data. Stock icon names can also be used where supported.
 //
 // On macOS, this will first try `terminal-notifier` and will fall back to AppleScript with `osascript`.
 func Notify(title, message string, icon any) error {

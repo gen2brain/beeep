@@ -19,9 +19,16 @@ import (
 )
 
 // Notify sends desktop notification.
+// The icon can be string with a path to png file or png []byte data. Stock icon names can also be used where supported.
 //
-// Icon can be string with a path to png file or []byte data. Stock icon names can also be used where supported.
-// On Linux it tries to send notification via D-Bus, and it will fall back to `notify-send` command.
+// On Linux it tries to send notification via D-Bus, and it will fall back to `notify-send`.
+//
+// On macOS, this will first try `terminal-notifier` and will fall back to AppleScript with `osascript`.
+//
+// On Windows 10/11 it will use Windows Runtime COM API and will fall back to PowerShell. Windows 7 will use win32 API.
+//
+// On the Web it uses the Notification API, in Firefox it just works, in Chrome you must call it from some "user gesture"
+// like `onclick`, and you must use TLS certificate, it doesn't work with plain http.
 func Notify(title, message string, icon any) error {
 	return notify1(title, message, icon, false)
 }

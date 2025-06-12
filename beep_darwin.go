@@ -15,6 +15,9 @@ var (
 )
 
 // Beep beeps the PC speaker (https://en.wikipedia.org/wiki/PC_speaker).
+//
+// On macOS, it will first try to use `osascript` and will fall back to sending bell character.
+// Enable `Audible bell` in Terminal --> Preferences --> Settings --> Advanced.
 func Beep(freq float64, duration int) error {
 	osa, err := exec.LookPath("osascript")
 	if err != nil {

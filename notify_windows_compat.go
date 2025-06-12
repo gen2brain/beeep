@@ -15,6 +15,9 @@ import (
 var isWindows10 = false
 
 // Notify sends desktop notification.
+// The icon can be string with a path to png file or png []byte data. Stock icon names can also be used where supported.
+//
+// On Windows 10/11 it will use Windows Runtime COM API and will fall back to PowerShell. Windows 7 will use win32 API.
 func Notify(title, message string, icon any) error {
 	var img string
 	switch i := icon.(type) {

@@ -40,7 +40,8 @@ type inputEvent struct {
 // If it cannot open device files, it will fall back to sending Bell character (https://en.wikipedia.org/wiki/Bell_character).
 // For bell character in X11 terminals you can enable a bell with `xset b on`. For console check `setterm` and `--blength` or `--bfreq` options.
 //
-// On macOS this just sends bell character. Enable `Audible bell` in Terminal --> Preferences --> Settings --> Advanced.
+// On macOS, it will first try to use `osascript` and will fall back to sending bell character.
+// Enable `Audible bell` in Terminal --> Preferences --> Settings --> Advanced.
 //
 // On Windows it uses Beep function via syscall.
 //

@@ -14,6 +14,8 @@ const (
 )
 
 // Beep beeps the PC speaker (https://en.wikipedia.org/wiki/PC_speaker).
+//
+// On Windows it uses Beep function via syscall.
 func Beep(freq float64, duration int) error {
 	if freq == 0 {
 		freq = DefaultFreq

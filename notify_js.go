@@ -9,9 +9,10 @@ import (
 )
 
 // Notify sends desktop notification.
+// The icon can be string with a path/url to png file or png []byte data. Stock icon names can also be used where supported.
 //
-// On the Web, in Firefox it just works, in Chrome you must call it from some "user gesture" like `onclick`,
-// and you must use TLS certificate, it doesn't work with plain http.
+// On the Web it uses the Notification API, in Firefox it just works, in Chrome you must call it from some "user gesture"
+// like `onclick`, and you must use TLS certificate, it doesn't work with plain http.
 func Notify(title, message string, icon any) (err error) {
 	defer func() {
 		e := recover()
