@@ -2,20 +2,7 @@
 
 package beeep
 
-import (
-	"fmt"
-	"os/exec"
-)
-
 // Alert displays a desktop notification and plays a default system sound.
 func Alert(title, message string, icon any) error {
-	osa, err := exec.LookPath("osascript")
-	if err != nil {
-		return err
-	}
-
-	script := fmt.Sprintf("display notification %q with title %q sound name \"default\"", message, title)
-	cmd := exec.Command(osa, "-e", script)
-
-	return cmd.Run()
+	return notify1(title, message, icon, true)
 }
