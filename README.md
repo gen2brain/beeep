@@ -27,7 +27,7 @@ var icon []byte
 
 err := beeep.Notify("Title", "Message body", icon)
 if err != nil {
-panic(err)
+    panic(err)
 }
 ```
 
