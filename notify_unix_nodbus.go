@@ -17,9 +17,24 @@ func Notify(title, message string, icon any) error {
 	return notify1(title, message, icon, false)
 }
 
-func notify1(title, message, icon string, urgent bool) error {
-	if _, err := os.Stat(icon); err == nil {
-		icon = pathAbs(icon)
+func notify1(title, message string, icon any, urgent bool) error {
+	var img string
+	switch i := icon.(type) {
+	case string:
+		img = i
+	case []byte:
+		var err error
+		img, err = bytesToFilename(i)
+		if err != nil {
+			return err
+		}
+		defer os.Remove(img)
+	default:
+		return fmt.Errorf("unsupported argument: %T", icon)
+	}
+
+	if _, err := os.Stat(img); err == nil {
+		img = pathAbs(img)
 	}
 
 	cmd1 := func() error {
@@ -28,7 +43,7 @@ func notify1(title, message, icon string, urgent bool) error {
 			return err
 		}
 
-		args := []string{title, message, "-a", AppName, "-i", icon, "-t", strconv.Itoa(int(timeout.Milliseconds())), "-u"}
+		args := []string{title, message, "-a", AppName, "-i", img, "-t", strconv.Itoa(int(timeout.Milliseconds())), "-u"}
 		if urgent {
 			args = append(args, "critical")
 		} else {
@@ -45,7 +60,7 @@ func notify1(title, message, icon string, urgent bool) error {
 			return err
 		}
 
-		args := []string{"--title", title, "--passivepopup", message, strconv.Itoa(int(timeout.Seconds())), "--icon", icon}
+		args := []string{"--title", title, "--passivepopup", message, strconv.Itoa(int(timeout.Seconds())), "--icon", img}
 		c := exec.Command(cmd, args...)
 
 		return c.Run()
