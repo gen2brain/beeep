@@ -35,9 +35,9 @@ func Alert(title, message string, icon any) error {
 		if err := balloonNotify(title, message, img); err != nil {
 			return err
 		}
+		messageBeep()
 	}
 
-	messageBeep()
 
 	return nil
 }
