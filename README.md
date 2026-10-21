@@ -5,8 +5,13 @@
 `beeep` provides a cross-platform library for sending desktop notifications, alerts and beeps.
 
 ### Installation
-
-    go get -u github.com/gen2brain/beeep
+```sh
+go get -u github.com/gen2brain/beeep
+```
+Next, include Beeep in your application:
+```go
+import "github.com/gen2brain/beeep"
+```
 
 ### Build tags
 
